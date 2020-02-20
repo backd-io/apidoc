@@ -1,0 +1,122 @@
+openapi: 3.0.0
+info:
+  title: auth
+  version: '1.0'
+  contact:
+    url: 'https://backd.io/'
+    email: antoniofernandezvara+backd@gmail.com
+    name: Antonio Fernández
+  license:
+    name: Apache 2.0
+  description: Service responsible of the authentication on the platform
+servers:
+  - url: 'https://auth.backd.io'
+tags:
+  - name: sessions
+    description: All session related endpoints
+paths:
+  /sessions:
+    get:
+      summary: Gets the current session details.
+      tags:
+        - sessions
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+      operationId: get-sessions
+      description: Gets the current session (if any)
+      security:
+        - X-Session-ID: []
+    post:
+      summary: Creates a new session.
+      tags:
+        - sessions
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Session ID
+                  expires_at:
+                    type: integer
+                    description: Time where the session will be expired.
+                required:
+                  - id
+                  - expires_at
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+      operationId: post-sessions
+      description: 'Creates a new session. In order to create a new session on the service domain, user and password must match an existen identity.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                domain:
+                  type: string
+                  description: Domain where the identity is created
+                username:
+                  type: string
+                password:
+                  type: string
+              required:
+                - domain
+                - username
+                - password
+    delete:
+      summary: Destroy a session.
+      tags:
+        - sessions
+      responses:
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+      operationId: delete-sessions
+      description: Destroys the current session (if valid)
+      security:
+        - X-Session-ID: []
+  /me:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  username:
+                    type: string
+              examples: {}
+      operationId: get-me
+      description: Returns information of the current user on this session
+      security:
+        - X-Session-ID: []
+components:
+  schemas: {}
+  securitySchemes:
+    X-Session-ID:
+      type: http
+      scheme: basic
+      description: Session ID for logged in users.
